@@ -3,6 +3,7 @@ package com.example.email;
 import java.util.Properties;
 import javax.mail.Authenticator;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
@@ -15,11 +16,11 @@ import javax.mail.internet.MimeMultipart;
 
 public class EmailSender {
 
-    private static Properties prop = new Properties();
-    private static Session session;
-    private static String username = "buzzetti.jp@gmail.com";
+    private static final Properties prop = new Properties();
+    private static final Session session;
+    private static final String username = "buzzetti.jp@gmail.com";
     // GMAIL app specific password: https://support.google.com/accounts/answer/185833?p=InvalidSecondFactor
-    private static String password = "************";
+    private static final String password = "**********";
 
     static {
         prop.put("mail.smtp.auth", true);
@@ -37,20 +38,28 @@ public class EmailSender {
 
     public void send(String from, String to, String subject, String body) {
 
-        Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(from));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+        try {
 
-        message.setSubject(subject);
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(from));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
 
-        MimeBodyPart mimeBodyPart = new MimeBodyPart();
-        mimeBodyPart.setContent(body, "text/html; charset=utf-8");
+            message.setSubject(subject);
 
-        Multipart multipart = new MimeMultipart();
-        multipart.addBodyPart(mimeBodyPart);
+            MimeBodyPart mimeBodyPart = new MimeBodyPart();
+//            mimeBodyPart.setContent(body, "text/plain; charset=utf-8");
+            mimeBodyPart.setContent(body, "text/html; charset=utf-8");
 
-        message.setContent(multipart);
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(mimeBodyPart);
 
-        Transport.send(message);
+            message.setContent(multipart);
+
+            Transport.send(message);
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+
     }
 }
